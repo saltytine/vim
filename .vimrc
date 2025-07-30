@@ -15,7 +15,6 @@ set shiftwidth=2
 set expandtab
 set smartindent
 set hidden
-set clipboard=unnamedplus
 set nowrap
 set cursorline
 set noswapfile
@@ -31,10 +30,14 @@ set hlsearch
 set ignorecase
 set smartcase
 
+set autoindent
+set tabstop=4 shiftwidth=4 expandtab
+
 " leader is the good old space bar
 let mapleader = " "
 
 " plugin manager
+" coc.nvim requires npm, you can install lsps with :CocInstall coc-[lsp-here]
 call plug#begin('~/.vim/plugged')
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -45,14 +48,17 @@ Plug 'vim-airline/vim-airline'
 Plug 'morhetz/gruvbox'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-commentary'
+Plug 'jiangmiao/auto-pairs'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 
 call plug#end()
 
 " keymaps
-nnoremap <leader>k <C-w>k
-nnoremap <leader>h <C-w>h
-nnoremap <leader>j <C-w>j
-nnoremap <leader>l <C-w>l
+nnoremap <Leader>k <C-w>k
+nnoremap <Leader>h <C-w>h
+nnoremap <Leader>j <C-w>j
+nnoremap <Leader>l <C-w>l
 
 vnoremap <A-Up> :m '<-2<CR>gv=gv
 vnoremap <A-Down> :m '>+1<CR>gv=gv
@@ -66,8 +72,10 @@ vnoremap <Tab> >gv
 vnoremap <Leader><Tab> <gv
 nnoremap <Leader><Up> gg
 nnoremap <Leader><Down> G
-noremap <C-Left> 0
-noremap <C-Right> $
+nnoremap <C-Left> 0
+nnoremap <C-Right> $
+inoremap <C-Left> <C-o>0
+inoremap <C-Right> <C-o>$
 nnoremap <Leader>d :vsplit
 nnoremap <C-w> @w
 " nnoremap o a
@@ -88,6 +96,8 @@ vnoremap <C-Right> $
 nnoremap n <Nop>
 nnoremap m <Nop>
 vnoremap y "+y
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
 " colors
 colorscheme retrobox
