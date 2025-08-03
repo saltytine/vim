@@ -45,12 +45,14 @@ Plug 'junegunn/fzf.vim'
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 Plug 'vim-airline/vim-airline'
-Plug 'morhetz/gruvbox'
+" Plug 'morhetz/gruvbox'
+" retrobox is just better :P
 Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-commentary'
 Plug 'jiangmiao/auto-pairs'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+Plug 'vuciv/golf'
 
 call plug#end()
 
@@ -66,17 +68,16 @@ vnoremap <A-Down> :m '>+1<CR>gv=gv
 nmap <Leader>ff :Files<CR>
 nmap <Leader>fg :GFiles<CR>
 nmap <Leader>fb :Buffers<CR>
-nmap <Leader>n :NERDTreeToggle<CR>
-nmap <Leader>gs :G<CR>
 vnoremap <Tab> >gv
 vnoremap <Leader><Tab> <gv
-nnoremap <Leader><Up> gg
-nnoremap <Leader><Down> G
+nnoremap <Leader><Left> gg
+nnoremap <Leader><Right> G
 nnoremap <C-Left> 0
 nnoremap <C-Right> $
 inoremap <C-Left> <C-o>0
 inoremap <C-Right> <C-o>$
 nnoremap <Leader>d :vsplit
+" i'll prolly just use :Sex!
 nnoremap <C-w> @w
 " nnoremap o a
 " nnoremap ii o
@@ -84,7 +85,7 @@ nnoremap <C-w> @w
 inoremap <Esc> <Esc>l
 inoremap <C-c> <C-c>l
 nnoremap <Leader>w :let @w = ''<CR>
-vnoremap mm gc, doesnt work for some reason
+" vnoremap mm gc, doesnt work for some reason
 vnoremap <Tab> >gv
 vnoremap <Leader><Tab> <gv
 nnoremap <Leader><Up> gg
@@ -99,6 +100,13 @@ vnoremap y "+y
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
+" my crackpot scheme right here:
+" so, shift z should mark a line, and then jump to it if a line is marked
+" and then normal z unmarks a line
+let g:marked_line = 0
+nnoremap Z :if g:marked_line > 0 \| execute g:marked_line \| echo "" \| else \| let g:marked_line = line('.') \| echo "marked line ".g:marked_line \| endif<CR>
+nnoremap z :let g:marked_line = 0 \| echo "mark cleared"<CR>
+ 
 " colors
 colorscheme retrobox
 set background=dark
