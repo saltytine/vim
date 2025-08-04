@@ -2,12 +2,6 @@ set nocompatible
 syntax on
 filetype plugin indent on
 
-" i made the cursor stop blinking, although this might be kitty specific, if
-" you want smth for another terminal emulator or terminal and this doesnt
-" work, you might have to find a different way to go about it
-let &t_SI = "\e[2 q"
-let &t_EI = "\e[2 q"
-
 set number
 set relativenumber
 set tabstop=2
@@ -33,6 +27,11 @@ set smartcase
 set autoindent
 set tabstop=4 shiftwidth=4 expandtab
 
+augroup folder_tabs
+  autocmd!
+  autocmd BufEnter ~/Coding/tivOS/* setlocal expandtab tabstop=2 shiftwidth=2
+augroup END
+
 " leader is the good old space bar
 let mapleader = " "
 
@@ -55,6 +54,9 @@ Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': 
 Plug 'vuciv/golf'
 
 call plug#end()
+
+" have c and cpp comments use // instead of /**/
+autocmd FileType c,cpp setlocal commentstring=//\ %s
 
 " keymaps
 nnoremap <Leader>k <C-w>k
@@ -97,8 +99,8 @@ vnoremap <C-Right> $
 nnoremap n <Nop>
 nnoremap m <Nop>
 vnoremap y "+y
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <expr> <Tab> pumvisible() ? coc#_select_confirm() : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-n>" : "\<S-Tab>"
 
 " my crackpot scheme right here:
 " so, shift z should mark a line, and then jump to it if a line is marked
