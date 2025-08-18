@@ -2,6 +2,8 @@ set nocompatible
 syntax on
 filetype plugin indent on
 
+set guicursor=n-v-c:block,i:ver25
+
 set number
 set relativenumber
 set tabstop=2
@@ -32,6 +34,125 @@ augroup folder_tabs
   autocmd BufEnter ~/Coding/tivOS/* setlocal expandtab tabstop=2 shiftwidth=2
 augroup END
 
+" ===========================
+" TODO manager
+" ===========================
+
+let g:todo_file = expand('~/todo.md')
+
+function! s:ToggleCheckbox() abort
+  let l:line = getline('.')
+  if l:line =~ '\[ \]'
+    call setline('.', substitute(l:line, '\[ \]', '[x]', ''))
+  elseif l:line =~ '\[x\]'
+    call setline('.', substitute(l:line, '\[x\]', '[ ]', ''))
+  endif
+endfunction
+
+function! s:SaveSection(header) abort
+  if !filereadable(g:todo_file)
+    call writefile([], g:todo_file)
+  endif
+
+  let l:lines = readfile(g:todo_file)
+  let l:buflines = getline(1, '$')
+
+  let l:new = []
+  let l:in_section = 0
+  let l:header_found = 0
+
+  for lnum in range(len(l:lines))
+    let l:line = l:lines[lnum]
+    if l:line =~ '^# '
+      if l:line ==# a:header
+        call add(l:new, l:line)
+        call extend(l:new, l:buflines[1:])
+        let l:in_section = 1
+        let l:header_found = 1
+        continue
+      elseif l:in_section
+        call add(l:new, l:line)
+        let l:in_section = 0
+        continue
+      endif
+    endif
+    if !l:in_section
+      call add(l:new, l:line)
+    endif
+  endfor
+
+  if !l:header_found
+    call add(l:new, a:header)
+    call extend(l:new, l:buflines[1:])
+  endif
+
+  call writefile(l:new, g:todo_file)
+endfunction
+
+function! s:OpenTodo(scope) abort
+  if !filereadable(g:todo_file)
+    call writefile([], g:todo_file)
+  endif
+
+  let l:lines = readfile(g:todo_file)
+
+  if a:scope ==# 'file'
+    let l:header = '# ' . expand('%:p')
+  elseif a:scope ==# 'dir'
+    let l:header = '# ' . expand('%:p:h')
+  else
+    let l:header = ''
+  endif
+
+  split __TODO__
+  setlocal buftype=nofile bufhidden=wipe noswapfile
+  setlocal modifiable
+
+  if l:header !=# ''
+    let l:start = -1
+    for i in range(len(l:lines))
+      if l:lines[i] =~ '^' . escape(l:header, '#/.\') . '$'
+        let l:start = i
+        break
+      endif
+    endfor
+
+    if l:start >= 0
+      let l:end = len(l:lines)
+      for i in range(l:start+1, len(l:lines)-1)
+        if l:lines[i] =~# '^# '
+          let l:end = i
+          break
+        endif
+      endfor
+      call setline(1, l:lines[l:start : l:end-1])
+    else
+      call setline(1, [l:header, '- [ ] '])
+    endif
+  else
+    call setline(1, l:lines)
+  endif
+
+  nnoremap <buffer> <CR> :call <SID>ToggleCheckbox()<CR>
+  nnoremap <buffer> q :call <SID>CloseAndSave()<CR>
+  nnoremap <buffer> <Esc> :call <SID>CloseAndSave()<CR>
+endfunction
+
+function! s:CloseAndSave() abort
+  let l:buflines = getline(1, '$')
+  if l:buflines[0] =~ '^# '
+    let l:header = l:buflines[0]
+    call s:SaveSection(l:header)
+  endif
+  bd!
+endfunction
+
+command! Todo    call s:OpenTodo('file')
+command! Todor   call s:OpenTodo('dir')
+command! Todoall call s:OpenTodo('all')
+
+" ===========================
+
 " leader is the good old space bar
 let mapleader = " "
 
@@ -49,14 +170,15 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-commentary'
 Plug 'jiangmiao/auto-pairs'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 Plug 'vuciv/golf'
+Plug 'junegunn/fzf.vim'
+Plug 'saltytine/BQN', {'rtp': 'editors/vim'}
 
 call plug#end()
 
 " have c and cpp comments use // instead of /**/
-autocmd FileType c,cpp setlocal commentstring=//\ %s
+autocmd FileType c,cpp,swift setlocal commentstring=//\ %s
 
 " keymaps
 nnoremap <Leader>k <C-w>k
@@ -68,7 +190,7 @@ vnoremap <A-Up> :m '<-2<CR>gv=gv
 vnoremap <A-Down> :m '>+1<CR>gv=gv
 
 nmap <Leader>ff :Files<CR>
-nmap <Leader>fg :GFiles<CR>
+nmap <Leader>fg :Rg
 nmap <Leader>fb :Buffers<CR>
 vnoremap <Tab> >gv
 vnoremap <Leader><Tab> <gv
@@ -108,10 +230,14 @@ inoremap <expr> <S-Tab> pumvisible() ? "\<C-n>" : "\<S-Tab>"
 let g:marked_line = 0
 nnoremap Z :if g:marked_line > 0 \| execute g:marked_line \| echo "" \| else \| let g:marked_line = line('.') \| echo "marked line ".g:marked_line \| endif<CR>
 nnoremap z :let g:marked_line = 0 \| echo "mark cleared"<CR>
- 
+
 " colors
 colorscheme retrobox
 set background=dark
+highlight Normal ctermbg=NONE guibg=NONE
+highlight NonText ctermbg=NONE guibg=NONE
+highlight LineNr ctermbg=NONE guibg=NONE
+highlight EndOfBuffer ctermbg=NONE guibg=NONE
 
 " tmux exact it my own custom theme made to match/look good with my
 " .tmux.conf, see https://github.com/saltytine/tmux for that
