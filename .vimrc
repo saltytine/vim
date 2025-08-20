@@ -106,13 +106,6 @@ nnoremap n <Nop>
 nnoremap m <Nop>
 vnoremap y "+y
 
-" my crackpot scheme right here:
-" so, shift z should mark a line, and then jump to it if a line is marked
-" and then normal z unmarks a line
-" let g:marked_line = 0
-" nnoremap Z :if g:marked_line > 0 \| execute g:marked_line \| echo "" \| else \| let g:marked_line = line('.') \| echo "marked line ".g:marked_line \| endif<CR>
-" nnoremap z :let g:marked_line = 0 \| echo "mark cleared"<CR>
-
 " colors
 colorscheme retrobox
 set background=dark
