@@ -58,6 +58,7 @@ Plug 'saltytine/BQN', {'rtp': 'editors/vim'}
 Plug 'saltytine/todo-by-file'
 Plug 'saltytine/marked'
 Plug 'saltytine/live-reference'
+" instead of using coc (because of the cursor problems, use control p and live-reference)
 
 call plug#end()
 
