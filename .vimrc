@@ -75,7 +75,7 @@ vnoremap <A-Up> :m '<-2<CR>gv=gv
 vnoremap <A-Down> :m '>+1<CR>gv=gv
 
 nmap <Leader>ff :Files<CR>
-nmap <Leader>fg :Rg
+nmap <Leader>fg :Rg<CR>
 nmap <Leader>fb :Buffers<CR>
 vnoremap <Tab> >gv
 vnoremap <Leader><Tab> <gv
